@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 const express = require('express'),
       app = express(),
       http = require('http').Server(app),
@@ -6,11 +8,15 @@ const express = require('express'),
       cors = require('cors'),
       port = process.env.PORT || 3000;
 
-// mongoose.connect('');
-// const db = mongoose.connection;
+const recipes = require('./recipe-routes');
+
+mongoose.connect(process.env.DB_CONNECTION, {useNewUrlParser: true});
+const db = mongoose.connection;
 
 app.use(cors());
 app.use(bodyParser.json());
+
+app.use('/recipes', recipes)
 
 app.get('/', function(req, res){
   res.send("I'm a little server");
