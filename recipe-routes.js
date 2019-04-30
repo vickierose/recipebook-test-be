@@ -4,9 +4,9 @@ const router = express.Router();
 const Recipe = require('./recipe-model');
 
 router.get('/', (req, res) => {
-  Recipe.find({}, '_id latest').sort({'latest.createdAt': -1}).exec((err, recipes) => {
+  Recipe.find({}, '_id latest').sort({'latest.createdAt': -1}).lean().exec((err, recipes) => {
     if(err) res.send(err);
-    res.send(recipes);
+    res.json(recipes);
   })
 });
 
