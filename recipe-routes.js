@@ -22,10 +22,13 @@ router.post('/', (req, res) => {
     versions: [versionData]
   });
 
-  newRecipe.save((err, recipe) => {
-    if (err) res.send(err); 
-    res.send(recipe);
-  });
+  newRecipe.save().then(() => {
+    Recipe.find({}, '_id latest').sort({'latest.createdAt': -1}).lean().exec((err, recipes) => {
+      if(err) res.send(err);
+      res.json(recipes);
+    })
+  })
+  .catch(err => console.log(err))
 });
 
 router.get('/:id', (req, res) => {
@@ -45,7 +48,10 @@ router.put('/:id', (req, res) => {
 
   Recipe.findByIdAndUpdate(
     req.params.id,
-    {$push: {versions: versionData}, $set: {latest: versionData}},
+    {
+      $push: {versions: {$each: [versionData], $sort: {createdAt: -1}}},
+      $set: {latest: versionData}
+    },
     {"new": true}).exec((err, recipe) => {
       if(err) res.send(err);
       res.send(recipe);
